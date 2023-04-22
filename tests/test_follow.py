@@ -101,6 +101,7 @@ class TestFollowAPI:
             f'к `{self.url}`, возвращает ответ со статусом 201.'
         )
         data = {'following': another_user.username}
+        
         try:
             response = user_client.post(self.url, data=data)
         except IntegrityError as error:
@@ -111,7 +112,7 @@ class TestFollowAPI:
             )
         assert response.status_code == HTTPStatus.CREATED, assert_msg
         test_data = response.json()
-
+       
         msg_error = (
             'Проверьте, что POST-запрос авторизованного пользователя к '
             f'`{self.url}` возвращает словарь с данными новой подписки. '
