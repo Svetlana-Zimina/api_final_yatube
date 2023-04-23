@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, viewsets, permissions, filters
+from rest_framework import filters, mixins, permissions, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
-from posts.models import Comment, Follow, Group, Post
+from posts.models import Follow, Group, Post
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CommentSerializer,
@@ -12,8 +12,11 @@ from .serializers import (
 )
 
 
-class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
+class CreateListViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
     """Кастомный ViewSet: создание и получение списка."""
     pass
 
@@ -23,10 +26,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (
-        IsAuthorOrReadOnly,
-        permissions.IsAuthenticatedOrReadOnly
-    )
+    permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = LimitOffsetPagination
 
     def perform_create(self, serializer):
@@ -40,20 +40,14 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (
-        IsAuthorOrReadOnly,
-        permissions.IsAuthenticatedOrReadOnly
-    )
+    permission_classes = (permissions.AllowAny,)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Представление для модели Comment."""
 
     serializer_class = CommentSerializer
-    permission_classes = (
-        IsAuthorOrReadOnly,
-        permissions.IsAuthenticatedOrReadOnly
-    )
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
         """
@@ -61,7 +55,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         Отбор комментариев к этому посту.
         """
         post_id = self.kwargs.get("post_id")
-        new_queryset = Comment.objects.filter(post=post_id)
+        post = get_object_or_404(Post, pk=post_id)
+        new_queryset = post.comments.all()
         return new_queryset
 
     def perform_create(self, serializer):
@@ -82,7 +77,6 @@ class FollowViewSet(CreateListViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('following__username',)
-    pagination_class = None
 
     def get_queryset(self):
         """

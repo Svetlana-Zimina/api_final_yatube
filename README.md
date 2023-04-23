@@ -133,3 +133,13 @@ POST
 
 http://127.0.0.1:8000/api/v1/jwt/verify/
 ```
+
+### Технологии:
+
+- Django Framework;
+- Django Rest Framework.
+
+### Над проектом работали:
+
+Зимина Светлана
+https://github.com/Svetlana-Zimina

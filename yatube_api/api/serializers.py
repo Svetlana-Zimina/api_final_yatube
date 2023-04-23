@@ -1,8 +1,8 @@
+import base64
+
+from django.core.files.base import ContentFile
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-import base64
-from django.core.files.base import ContentFile
-
 
 from posts.models import Comment, Follow, Group, Post, User
 
@@ -76,7 +76,8 @@ class FollowSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
-                fields=('user', 'following')
+                fields=('user', 'following'),
+                message='На этого автора вы уже подписаны!'
             ),
         ]
 
